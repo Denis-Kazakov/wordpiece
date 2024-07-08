@@ -67,12 +67,14 @@ class WordPieceTrainer:
 
         if '<unk>' not in self.tokens:
             self.tokens = ['<unk>'] + self.tokens
-        if '[sep]' not in self.tokens: # Checking just in case
-            self.tokens = ['[sep]'] + self.tokens
-        if '[cls]' not in self.tokens:
-            self.tokens = ['[cls]'] + self.tokens
-        if '[pad]' not in self.tokens: 
-            self.tokens = ['[pad]'] + self.tokens
+        if '<mask>' not in self.tokens:
+            self.tokens = ['<mask>'] + self.tokens
+        if '<sep>' not in self.tokens: # Checking just in case
+            self.tokens = ['<sep>'] + self.tokens
+        if '<cls>' not in self.tokens:
+            self.tokens = ['<cls>'] + self.tokens
+        if '<pad>' not in self.tokens: 
+            self.tokens = ['<pad>'] + self.tokens
         with open('./tokenizer_data/idx2token.json', 'w') as f:
                 json.dump(self.tokens, f)
 
