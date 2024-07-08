@@ -168,7 +168,9 @@ class WordPieceTokenizer:
         with open(os.path.join(path, 'token2idx.json')) as f:
             self.token2idx = json.load(f)
 
-    def encode(self, text: str) -> list:
+    # MAIN FUNCTIONS
+    
+    def encode(self, text: str, display_progress_bar=True) -> list:
         """Convert a text into a list of token indices"""
         # Replace unknown symbols with <unk>
         all_symbols = set(text)
@@ -180,25 +182,38 @@ class WordPieceTokenizer:
         # Tokenizing the text
         output = []
         words = ['_' + word for word in text.split()]
-        for word in tqdm(words):
-            start, end = 0, len(word)
-            # Segment token with the longest possible subwords from symbols
-            while start < len(word) and start < end:
-                if word[start: end] in self.idx2token:
-                    output.append(word[start: end])
-                    start = end
-                    end = len(word)
-                else:
-                    end -= 1
-            if start < len(word): # Should not happen but just in case
-                output.append('<unk>')
-                
+        if display_progress_bar:
+            for word in tqdm(words):
+                output.extend(self._tokenize_word(word))
+        else:
+            for word in words:
+                output.extend(self._tokenize_word(word))
+            
         # Convert tokens into token indices
         return [self.token2idx[token] for token in output]
 
+    
     def decode(self, sequence: list) -> str:
         """Convert a sequence of token indices into text"""
         text = ''.join(
             [self.idx2token[idx] for idx in sequence]
         )
         return text.replace('_', ' ')
+
+    # HELPER FUNCTIONS
+    
+    def _tokenize_word(self, word):
+        cur_output = []
+        start, end = 0, len(word)
+        # Segment token with the longest possible subwords from symbols
+        while start < len(word) and start < end:
+            if word[start: end] in self.idx2token:
+                cur_output.append(word[start: end])
+                start = end
+                end = len(word)
+            else:
+                end -= 1
+        if start < len(word): # Should not happen but just in case
+            cur_output.append('<unk>')
+        return cur_output
+        
